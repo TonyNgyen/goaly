@@ -16,6 +16,12 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/tasks", taskRoutes);
+console.log("✅ /api/tasks mounted");
+
+app.get("/test", (req, res) => {
+  console.log("🧪 Test endpoint hit");
+  res.json({ message: "✅ Express is working" });
+});
 
 app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
