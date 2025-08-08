@@ -8,7 +8,7 @@ import {
   toggleTaskComplete,
   getTasksForToday,
   getOverdueTasks,
-  getTasksCompletedToday, // 👈 Add this
+  getTasksCompletedToday,
 } from "../controllers/tasks";
 
 const router = express.Router();

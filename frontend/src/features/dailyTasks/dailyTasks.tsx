@@ -11,7 +11,7 @@ type Task = {
 };
 
 function DailyTasks() {
-  const [todaysTasks, setTodaysTasks] = useState<Task[]>([]);
+  const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
   const [todaysCompletedTasks, setTodaysCompletedTasks] = useState<Task[]>([]);
   const [error, setError] = useState("");
@@ -23,43 +23,33 @@ function DailyTasks() {
   });
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchTodaysTasks = async () => {
+  const fetchAllTasks = async () => {
     try {
-      const res = await fetch("http://localhost:4000/api/tasks/today");
+      const res = await fetch("http://localhost:4000/api/tasks/getAllTasks");
       const data = await res.json();
-      setTodaysTasks(data);
+      setAllTasks(data);
+      return data;
     } catch (err) {
       console.error("Error fetching tasks:", err);
       setError("Could not load tasks.");
     }
   };
 
-  const fetchOverdueTasks = async () => {
-    try {
-      const res = await fetch("http://localhost:4000/api/tasks/overdue");
-      const data = await res.json();
-      setOverdueTasks(data);
-    } catch (err) {
-      console.error("Error fetching overdue tasks:", err);
-      setError("Could not load overdue tasks.");
-    }
-  };
-
-  const fetchTodaysCompletedTasks = async () => {
-    try {
-      const res = await fetch("http://localhost:4000/api/tasks/completedToday");
-      const data = await res.json();
-      setTodaysCompletedTasks(data);
-    } catch (err) {
-      console.error("Error fetching completed tasks:", err);
-      setError("Could not load completed tasks.");
-    }
+  const processTasks = (tasks: Task[]) => {
+    for (const task of tasks) {console.log("Task:", task);}
   };
 
   useEffect(() => {
-    fetchTodaysTasks();
-    fetchOverdueTasks();
-    fetchTodaysCompletedTasks();
+    const fetchAndProcessTasks = async () => {
+      try {
+        const tasks = await fetchAllTasks();
+        processTasks(tasks);
+      } catch (err) {
+        console.error("Error in useEffect:", err);
+        setError("Failed to load tasks.");
+      }
+    };
+    fetchAndProcessTasks();
   }, []);
 
   useEffect(() => {
@@ -87,7 +77,7 @@ function DailyTasks() {
 
       setForm({ title: "", description: "", dueDate: "" });
       setFormOpen(false);
-      await fetchTodaysTasks();
+      await fetchAllTasks();
     } catch (err) {
       console.error("Error adding task:", err);
       setError("Failed to add task.");
@@ -105,9 +95,7 @@ function DailyTasks() {
 
       if (!res.ok) throw new Error("Failed to toggle task completion");
 
-      await fetchTodaysTasks();
-      await fetchTodaysCompletedTasks();
-      await fetchOverdueTasks();
+      await fetchAllTasks();
     } catch (err) {
       console.error("Error toggling task completion:", err);
       setError("Failed to toggle task completion.");
@@ -181,70 +169,10 @@ function DailyTasks() {
         <p className="text-red-500">{error}</p>
       ) : (
         <ul className="space-y-2">
-          {todaysTasks.map((task) => (
+          {allTasks.map((task) => (
             <li
               key={task.id}
               className={`bg-white p-3 rounded shadow flex justify-between items-center transition 
-    ${task.completed ? "opacity-60 grayscale" : "opacity-100"}`}
-            >
-              <span
-                className={`transition-all ${
-                  task.completed ? "line-through" : ""
-                }`}
-              >
-                {task.title}
-              </span>
-              <div className="flex items-center gap-4">
-                <span
-                  className={`text-sm ${
-                    task.completed ? "text-green-500" : "text-gray-500"
-                  }`}
-                >
-                  {task.completed ? "Completed" : "Pending"}
-                </span>
-                <button
-                  onClick={() => toggleComplete(task.id)}
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm"
-                >
-                  {task.completed ? "Mark Pending" : "Mark Done"}
-                </button>
-              </div>
-            </li>
-          ))}
-          {overdueTasks.map((task) => (
-            <li
-              key={task.id}
-              className={`bg-red-100 p-3 rounded shadow flex justify-between items-center transition 
-    ${task.completed ? "opacity-60 grayscale" : "opacity-100"}`}
-            >
-              <span
-                className={`transition-all ${
-                  task.completed ? "line-through" : ""
-                }`}
-              >
-                {task.title}
-              </span>
-              <div className="flex items-center gap-4">
-                <span
-                  className={`text-sm ${
-                    task.completed ? "text-green-500" : "text-gray-500"
-                  }`}
-                >
-                  {task.completed ? "Completed" : "Pending"}
-                </span>
-                <button
-                  onClick={() => toggleComplete(task.id)}
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm"
-                >
-                  {task.completed ? "Mark Pending" : "Mark Done"}
-                </button>
-              </div>
-            </li>
-          ))}
-          {todaysCompletedTasks.map((task) => (
-            <li
-              key={task.id}
-              className={`bg-red-100 p-3 rounded shadow flex justify-between items-center transition 
     ${task.completed ? "opacity-60 grayscale" : "opacity-100"}`}
             >
               <span

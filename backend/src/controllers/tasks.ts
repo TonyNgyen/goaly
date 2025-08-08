@@ -57,7 +57,6 @@ export const getTasksForToday = async (req: Request, res: Response) => {
         dueDate: "asc",
       },
     });
-
     res.json(tasks);
   } catch (err) {
     console.error("Failed to get today's tasks:", err);
