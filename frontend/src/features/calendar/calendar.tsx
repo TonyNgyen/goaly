@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+type Event = {
+  title: string;
+  start: Date;
+  end: Date;
+};
+
 const hours = Array.from({ length: 24 }, (_, i) => {
   const hour = i % 12 || 12;
   const ampm = i < 12 ? "AM" : "PM";
@@ -7,6 +13,17 @@ const hours = Array.from({ length: 24 }, (_, i) => {
 });
 
 const updateInterval = 10_000; // update every 10 seconds (adjust as needed)
+
+const getMinutesFromDate = (date: Date) =>
+  date.getHours() * 60 + date.getMinutes();
+
+const getTopAndHeight = (start: Date, end: Date) => {
+  const startMin = getMinutesFromDate(start);
+  const endMin = getMinutesFromDate(end);
+  const top = (startMin / 60) * 64;
+  const height = ((endMin - startMin) / 60) * 64;
+  return { top, height };
+};
 
 function Calendar() {
   const [currentTimeMin, setCurrentTimeMin] = useState(() => {
@@ -26,11 +43,11 @@ function Calendar() {
 
   // Function to calculate top position for current time line
   const getCurrentTimeTop = () => (currentTimeMin / 60) * 64;
-  const [events, setEvents] = useState([
+  const [events, setEvents] = useState<Event[]>([
     {
       title: "Meeting with team",
-      start: "09:00",
-      end: "11:00",
+      start: new Date(2025, 7, 9, 9, 0),
+      end: new Date(2025, 7, 9, 11, 0),
     },
   ]);
 
@@ -42,18 +59,37 @@ function Calendar() {
 
   const addEvent = (e: React.FormEvent) => {
     e.preventDefault();
-    setEvents([...events, newEvent]);
+
+    // Convert form's HH:MM to Date object (keeping today's date for now)
+    const today = new Date();
+    const [startHour, startMinute] = newEvent.start.split(":").map(Number);
+    const [endHour, endMinute] = newEvent.end.split(":").map(Number);
+
+    const startDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      startHour,
+      startMinute
+    );
+    const endDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      endHour,
+      endMinute
+    );
+
+    setEvents([
+      ...events,
+      { title: newEvent.title, start: startDate, end: endDate },
+    ]);
     setNewEvent({ title: "", start: "09:00", end: "10:00" });
   };
 
-  const parseTime = (time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    return hours * 60 + minutes;
-  };
-
-  const getTopAndHeight = (start: string, end: string) => {
-    const startMin = parseTime(start);
-    const endMin = parseTime(end);
+  const getTopAndHeight = (start: Date, end: Date) => {
+    const startMin = start.getHours() * 60 + start.getMinutes();
+    const endMin = end.getHours() * 60 + end.getMinutes();
     const top = (startMin / 60) * 64;
     const height = ((endMin - startMin) / 60) * 64;
     return { top, height };
@@ -140,8 +176,7 @@ function Calendar() {
             {/* Render Events */}
             {events.map((event, idx) => {
               const { top, height } = getTopAndHeight(event.start, event.end);
-              const eventEndMin = parseTime(event.end);
-              const isFaded = eventEndMin <= currentTimeMin;
+              const isFaded = getMinutesFromDate(event.end) <= currentTimeMin;
 
               return (
                 <div
@@ -153,12 +188,10 @@ function Calendar() {
                     marginLeft: "4rem",
                     marginRight: "0.5rem",
                     filter: isFaded ? "grayscale(100%) opacity(60%)" : "none",
-                    pointerEvents: isFaded ? "none" : "auto", // optional: prevent interaction with faded events
+                    pointerEvents: isFaded ? "none" : "auto",
                   }}
                 >
                   {event.title}
-                  <br />
-                  {/* {event.start} – {event.end} */}
                 </div>
               );
             })}

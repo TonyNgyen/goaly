@@ -30,7 +30,7 @@ function DailyTasks() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/tasks/getAllTasks");
+        const res = await fetch("http://localhost:4000/api/tasks");
         const data = await res.json();
         const tasks: Record<number, Task> = {};
         data.forEach((task: Task) => {
@@ -44,47 +44,66 @@ function DailyTasks() {
     fetchTasks();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) {
       alert("Title is required.");
       return;
     }
 
-    const id = Date.now();
-    const now = new Date().toISOString();
+    try {
+      const res = await fetch("http://localhost:4000/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title.trim(),
+          description: form.description.trim() || undefined,
+          dueDate: form.dueDate || undefined,
+        }),
+      });
 
-    const newTask: Task = {
-      id,
-      title: form.title.trim(),
-      description: form.description.trim() || "",
-      dueDate: form.dueDate || "",
-      completed: false,
-      createdAt: now,
-      pendingAt: now,
-    };
+      if (!res.ok) {
+        throw new Error("Failed to create task");
+      }
 
-    setAllTasks((prev) => ({ [id]: newTask, ...prev }));
-    setForm({ title: "", description: "", dueDate: "" });
-    setFormOpen(false);
+      const newTask: Task = await res.json(); // ← real task from Prisma with `id`
+
+      // Merge it into state
+      setAllTasks((prev) => ({ [newTask.id]: newTask, ...prev }));
+
+      // Reset form
+      setForm({ title: "", description: "", dueDate: "" });
+      setFormOpen(false);
+    } catch (err) {
+      console.error("Error creating task:", err);
+    }
   };
 
-  const toggleComplete = (id: number) => {
-    setAllTasks((prev) => {
-      const task = prev[id];
-      const now = new Date().toISOString();
+  const toggleComplete = async (id: number) => {
+    try {
+      const res = await fetch(
+        `http://localhost:4000/api/tasks/${id}/toggleComplete`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-      const updatedTask: Task = {
-        ...task,
-        completed: !task.completed,
-        completedAt: !task.completed ? now : undefined,
-        pendingAt: task.completed ? now : undefined,
-      };
+      if (!res.ok) {
+        throw new Error(`Failed to toggle task: ${res.status}`);
+      }
 
-      return { ...prev, [id]: updatedTask };
-    });
+      const updatedTask: Task = await res.json();
+
+      // Update local state with the returned DB task
+      setAllTasks((prev) => ({
+        ...prev,
+        [updatedTask.id]: updatedTask,
+      }));
+    } catch (error) {
+      console.error("Error toggling task:", error);
+    }
   };
-
   const pendingTasks = Object.values(allTasks)
     .filter((t) => !t.completed)
     .sort((a, b) => {
@@ -118,7 +137,9 @@ function DailyTasks() {
       {/* Smooth expanding form */}
       <div
         className={`grid transition-all duration-300 overflow-hidden ${
-          formOpen ? "grid-rows-[1fr] opacity-100 mt-4" : "grid-rows-[0fr] opacity-0"
+          formOpen
+            ? "grid-rows-[1fr] opacity-100 mt-4"
+            : "grid-rows-[0fr] opacity-0"
         }`}
       >
         <form
@@ -176,9 +197,7 @@ function DailyTasks() {
             <div className="flex flex-col">
               <span className="font-medium">{task.title}</span>
               {task.description && (
-                <span className=" text-gray-500">
-                  {task.description}
-                </span>
+                <span className=" text-gray-500">{task.description}</span>
               )}
               {task.dueDate && (
                 <span className="text-xs text-gray-400">

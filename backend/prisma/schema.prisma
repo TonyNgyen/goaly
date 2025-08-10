@@ -15,4 +15,5 @@ model Task {
   completed   Boolean  @default(false)
   completedAt DateTime?
   createdAt   DateTime @default(now())
+  pendingAt   DateTime?
 }

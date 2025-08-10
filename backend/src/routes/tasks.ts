@@ -4,7 +4,6 @@ import {
   getAllTasks,
   createTask,
   getCompletedTasks,
-  completeTask,
   toggleTaskComplete,
   getTasksForToday,
   getOverdueTasks,
@@ -13,13 +12,12 @@ import {
 
 const router = express.Router();
 
-router.get("/getAllTasks", getAllTasks);
-router.post("/createTask", createTask);
+router.get("/", getAllTasks);
+router.post("/", createTask);
 router.get("/completed", getCompletedTasks);
 router.get("/today", getTasksForToday);
 router.get("/overdue", getOverdueTasks);
 router.get("/completedToday", getTasksCompletedToday);
-router.patch("/:id/complete", completeTask);
 router.patch("/:id/toggleComplete", toggleTaskComplete);
 
 export default router;

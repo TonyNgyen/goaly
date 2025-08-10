@@ -157,32 +157,22 @@ export const createTask = async (
         description,
         dueDate: dueDate ? new Date(dueDate) : undefined,
       },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        completed: true,
+        dueDate: true,
+        createdAt: true,
+        completedAt: true,
+        pendingAt: true,
+      },
     });
 
     res.status(201).json(newTask);
   } catch (err) {
     console.error("DB error:", err);
     res.status(500).json({ error: "Failed to create task" });
-  }
-};
-
-export const completeTask = async (req: Request, res: Response) => {
-  console.log("Calling");
-  const { id } = req.params;
-
-  try {
-    const updatedTask = await prisma.task.update({
-      where: { id: Number(id) },
-      data: {
-        completed: true,
-        completedAt: new Date(),
-      },
-    });
-
-    res.json(updatedTask);
-  } catch (error) {
-    console.error("Failed to mark task complete:", error);
-    res.status(500).json({ error: "Failed to mark task complete" });
   }
 };
 
@@ -208,6 +198,7 @@ export const toggleTaskComplete = async (req: Request, res: Response) => {
       data: {
         completed: !task.completed,
         completedAt: !task.completed ? now : null,
+        pendingAt: task.completed ? now : null,
       },
     });
 
