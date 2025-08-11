@@ -17,3 +17,13 @@ model Task {
   createdAt   DateTime @default(now())
   pendingAt   DateTime?
 }
+
+model Event {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  start       DateTime  // full Date object with both date and time
+  end         DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

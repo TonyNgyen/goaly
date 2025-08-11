@@ -12,18 +12,10 @@ const hours = Array.from({ length: 24 }, (_, i) => {
   return `${hour} ${ampm}`;
 });
 
-const updateInterval = 10_000; // update every 10 seconds (adjust as needed)
+const updateInterval = 10_000;
 
 const getMinutesFromDate = (date: Date) =>
   date.getHours() * 60 + date.getMinutes();
-
-const getTopAndHeight = (start: Date, end: Date) => {
-  const startMin = getMinutesFromDate(start);
-  const endMin = getMinutesFromDate(end);
-  const top = (startMin / 60) * 64;
-  const height = ((endMin - startMin) / 60) * 64;
-  return { top, height };
-};
 
 function Calendar() {
   const [currentTimeMin, setCurrentTimeMin] = useState(() => {
@@ -31,7 +23,6 @@ function Calendar() {
     return now.getHours() * 60 + now.getMinutes();
   });
 
-  // useEffect to update current time every updateInterval milliseconds
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -41,7 +32,6 @@ function Calendar() {
     return () => clearInterval(interval);
   }, []);
 
-  // Function to calculate top position for current time line
   const getCurrentTimeTop = () => (currentTimeMin / 60) * 64;
   const [events, setEvents] = useState<Event[]>([
     {
