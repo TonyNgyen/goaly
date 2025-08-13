@@ -1,4 +1,3 @@
-// src/routes/tasks.ts
 import express from "express";
 import {
   getAllTasks,

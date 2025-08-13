@@ -3,8 +3,8 @@ import { prisma } from "../prisma";
 
 export const getAllEvents = async (req: Request, res: Response) => {
   try {
-    const event = await prisma.event.findMany();
-    res.json(event);
+    const events = await prisma.event.findMany();
+    res.json(events)
   } catch (err) {
     console.error("DB error:", err);
     res.status(500).json({ error: "Failed to load events" });
@@ -44,5 +44,14 @@ export const getEventsWithDate = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Failed to get events for date:", err);
     res.status(500).json({ error: "Failed to get events for date" });
+  }
+}
+
+export const test = async (req: Request, res: Response) => {
+  try {
+    res.json(["This works"]);
+  } catch (err) {
+    console.error("Failed to fetch events:", err);
+    res.status(500).json({ error: "Failed to fetch events" });
   }
 }
