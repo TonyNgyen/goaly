@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import taskRoutes from "./routes/tasks";
+import eventRoutes from "./routes/events";
 
 dotenv.config();
 
@@ -17,6 +18,9 @@ app.get("/", (req, res) => {
 
 app.use("/api/tasks", taskRoutes);
 console.log("✅ /api/tasks mounted");
+
+app.use("/api/events", eventRoutes);
+console.log("✅ /api/events mounted");
 
 app.get("/test", (req, res) => {
   console.log("🧪 Test endpoint hit");

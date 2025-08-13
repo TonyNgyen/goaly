@@ -21,6 +21,7 @@ model Task {
 model Event {
   id          Int       @id @default(autoincrement())
   title       String
+  date        String
   description String?
   start       DateTime  // full Date object with both date and time
   end         DateTime

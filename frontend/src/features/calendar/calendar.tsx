@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 type Event = {
   title: string;
+  date: string; // YYYY-MM-DD
   start: Date;
   end: Date;
 };
@@ -33,9 +34,11 @@ function Calendar() {
   }, []);
 
   const getCurrentTimeTop = () => (currentTimeMin / 60) * 64;
+
   const [events, setEvents] = useState<Event[]>([
     {
       title: "Meeting with team",
+      date: "2025-08-09",
       start: new Date(2025, 7, 9, 9, 0),
       end: new Date(2025, 7, 9, 11, 0),
     },
@@ -43,38 +46,50 @@ function Calendar() {
 
   const [newEvent, setNewEvent] = useState({
     title: "",
+    date: new Date().toISOString().split("T")[0], // default to today
     start: "09:00",
     end: "10:00",
   });
 
-  const addEvent = (e: React.FormEvent) => {
+  const addEvent = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Convert form's HH:MM to Date object (keeping today's date for now)
-    const today = new Date();
     const [startHour, startMinute] = newEvent.start.split(":").map(Number);
     const [endHour, endMinute] = newEvent.end.split(":").map(Number);
+    const [year, month, day] = newEvent.date.split("-").map(Number);
 
-    const startDate = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      startHour,
-      startMinute
-    );
-    const endDate = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      endHour,
-      endMinute
-    );
+    console.log(newEvent)
 
-    setEvents([
-      ...events,
-      { title: newEvent.title, start: startDate, end: endDate },
-    ]);
-    setNewEvent({ title: "", start: "09:00", end: "10:00" });
+    const startDate = new Date(year, month - 1, day, startHour, startMinute);
+    const endDate = new Date(year, month - 1, day, endHour, endMinute);
+
+    const eventToAdd: Event = {
+      title: newEvent.title,
+      date: newEvent.date,
+      start: startDate,
+      end: endDate,
+    };
+
+    setEvents([...events, eventToAdd]);
+
+    await fetch("http://localhost:4000/api/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: eventToAdd.title,
+        description: "", // add if needed
+        date: eventToAdd.date,
+        start: startDate.toISOString(),
+        end: endDate.toISOString(),
+      }),
+    });
+
+    setNewEvent({
+      title: "",
+      date: new Date().toISOString().split("T")[0],
+      start: "09:00",
+      end: "10:00",
+    });
   };
 
   const getTopAndHeight = (start: Date, end: Date) => {
@@ -90,7 +105,7 @@ function Calendar() {
       <h1 className="text-xl font-semibold mb-4">Calendar</h1>
 
       {/* Add Event Form */}
-      <form onSubmit={addEvent} className="mb-4 flex gap-2">
+      <form onSubmit={addEvent} className="mb-4 flex gap-2 flex-wrap">
         <div>
           <label className="block text-sm font-medium">Title</label>
           <input
@@ -100,6 +115,16 @@ function Calendar() {
             onChange={(e) =>
               setNewEvent({ ...newEvent, title: e.target.value })
             }
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Date</label>
+          <input
+            type="date"
+            className="border p-2 border-gray-300 bg-white rounded text-sm"
+            value={newEvent.date}
+            onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
             required
           />
         </div>
@@ -181,7 +206,7 @@ function Calendar() {
                     pointerEvents: isFaded ? "none" : "auto",
                   }}
                 >
-                  {event.title}
+                  {event.title} <span className="text-xs">({event.date})</span>
                 </div>
               );
             })}
