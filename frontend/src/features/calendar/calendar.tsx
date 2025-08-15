@@ -184,7 +184,6 @@ function Calendar() {
           Add Event
         </button>
       </form>
-      <button onClick={() => console.log(events)}>Debug</button>
 
       {/* Calendar Grid */}
       <div className="bg-white h-[38rem] w-full overflow-y-auto relative rounded-lg">

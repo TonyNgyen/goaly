@@ -12,18 +12,20 @@ type Task = {
 };
 
 function DailyTasks() {
+  const today = new Date().toISOString().split("T")[0];
   const [allTasks, setAllTasks] = useState<Record<number, Task>>({});
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState({
     title: "",
     description: "",
-    dueDate: "",
+    dueDate: today,
   });
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (formOpen && titleInputRef.current) {
-      titleInputRef.current.focus();
+    if (formOpen) {
+      setForm((prev) => ({ ...prev, dueDate: today }));
+      titleInputRef.current?.focus();
     }
   }, [formOpen]);
 
@@ -126,12 +128,21 @@ function DailyTasks() {
     <div className="bg-gray-100 rounded-xl shadow p-6 w-full h-1/2 overflow-y-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Daily Tasks</h2>
-        <button
-          onClick={() => setFormOpen(!formOpen)}
-          className="flex items-center gap-2 bg-[#00509d] text-white px-4 py-2 rounded hover:bg-[#003f88] transition cursor-pointer text-base font-medium"
-        >
-          Add Task
-        </button>
+        {formOpen ? (
+          <button
+            onClick={() => setFormOpen(!formOpen)}
+            className="flex items-center gap-2 bg-[#00509d] text-white px-4 py-2 rounded hover:bg-[#003f88] transition cursor-pointer text-base font-medium"
+          >
+            Cancel
+          </button>
+        ) : (
+          <button
+            onClick={() => setFormOpen(!formOpen)}
+            className="flex items-center gap-2 bg-[#00509d] text-white px-4 py-2 rounded hover:bg-[#003f88] transition cursor-pointer text-base font-medium"
+          >
+            Add Task
+          </button>
+        )}
       </div>
 
       {/* Smooth expanding form */}
@@ -146,28 +157,60 @@ function DailyTasks() {
           onSubmit={handleSubmit}
           className="overflow-hidden space-y-3 mb-6"
         >
-          <input
-            ref={titleInputRef}
-            type="text"
-            placeholder="Task title"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full p-2 bg-white border border-gray-300 rounded"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Description (optional)"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full p-2 bg-white border border-gray-300 rounded"
-          />
-          <input
-            type="date"
-            value={form.dueDate}
-            onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-            className="w-full p-2 bg-white border border-gray-300 rounded"
-          />
+          <div>
+            <label
+              htmlFor="task-title"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Title
+            </label>
+            <input
+              id="task-title"
+              ref={titleInputRef}
+              type="text"
+              placeholder="Task title"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="w-full p-2 bg-white border border-gray-300 rounded"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="task-desc"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Description
+            </label>
+            <input
+              id="task-desc"
+              type="text"
+              placeholder="Description (optional)"
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+              className="w-full p-2 bg-white border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="task-date"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Due Date
+            </label>
+            <input
+              id="task-date"
+              type="date"
+              value={form.dueDate}
+              onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+              className="w-full p-2 bg-white border border-gray-300 rounded"
+            />
+          </div>
+
           <div className="flex justify-end gap-2">
             <button
               type="button"

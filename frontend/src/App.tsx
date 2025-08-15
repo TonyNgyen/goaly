@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import SideBar from "./features/sidebar/sidebar";
 import DailyTasks from "./features/dailyTasks/dailyTasks";
 import Calendar from "./features/calendar/calendar";
-import WeeklyOverview from "./features/weeklyOverview/weeklyOverview";
+import GoalOverview from "./features/goalOverview/goalOverview";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -35,7 +35,7 @@ function App() {
       <main className="flex-1 m-6 flex gap-6">
         <div className="flex-col flex gap-6 w-1/2">
           <DailyTasks />
-          <WeeklyOverview />
+          <GoalOverview />
         </div>
         <div className="flex-1 flex flex-col">
           <Calendar />
