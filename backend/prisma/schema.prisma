@@ -39,3 +39,13 @@ model Goal {
   completed   Boolean   @default(false)
   tasks       Task[]    @relation("GoalTasks")
 }
+
+model GoalTask {
+  goalId Int
+  taskId Int
+
+  goal   Goal @relation(fields: [goalId], references: [id])
+  task   Task @relation(fields: [taskId], references: [id])
+
+  @@id([goalId, taskId])
+}
