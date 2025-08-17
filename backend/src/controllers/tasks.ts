@@ -143,7 +143,7 @@ export const createTask = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { title, description, dueDate } = req.body;
+  const { title, description, dueDate, goalId } = req.body;
 
   if (!title || typeof title !== "string") {
     res.status(400).json({ error: "Title is required and must be a string." });
@@ -156,16 +156,14 @@ export const createTask = async (
         title,
         description,
         dueDate: dueDate ? new Date(dueDate) : undefined,
+        goals: goalId
+          ? {
+              connect: { id: Number(goalId) }, // connect to existing goal
+            }
+          : undefined,
       },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        completed: true,
-        dueDate: true,
-        createdAt: true,
-        completedAt: true,
-        pendingAt: true,
+      include: {
+        goals: true, // return linked goals for clarity
       },
     });
 

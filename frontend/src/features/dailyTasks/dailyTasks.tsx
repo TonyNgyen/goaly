@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import AddTaskForm from "../../components/AddTaskForm/addTaskForm";
 
 type Task = {
   id: number;
@@ -22,6 +23,20 @@ function DailyTasks() {
   });
   const titleInputRef = useRef<HTMLInputElement>(null);
 
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/api/tasks");
+      const data = await res.json();
+      const tasks: Record<number, Task> = {};
+      data.forEach((task: Task) => {
+        tasks[task.id] = task;
+      });
+      setAllTasks(tasks);
+    } catch (err) {
+      console.error("Failed to fetch tasks:", err);
+    }
+  };
+
   useEffect(() => {
     if (formOpen) {
       setForm((prev) => ({ ...prev, dueDate: today }));
@@ -30,19 +45,6 @@ function DailyTasks() {
   }, [formOpen]);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await fetch("http://localhost:4000/api/tasks");
-        const data = await res.json();
-        const tasks: Record<number, Task> = {};
-        data.forEach((task: Task) => {
-          tasks[task.id] = task;
-        });
-        setAllTasks(tasks);
-      } catch (err) {
-        console.error("Failed to fetch tasks:", err);
-      }
-    };
     fetchTasks();
   }, []);
 
@@ -146,7 +148,7 @@ function DailyTasks() {
       </div>
 
       {/* Smooth expanding form */}
-      <div
+      {/* <div
         className={`grid transition-all duration-300 overflow-hidden ${
           formOpen
             ? "grid-rows-[1fr] opacity-100 mt-4"
@@ -227,7 +229,9 @@ function DailyTasks() {
             </button>
           </div>
         </form>
-      </div>
+      </div> */}
+
+      <AddTaskForm formOpen={formOpen} setFormOpen={setFormOpen} onTaskCreated={fetchTasks} />
 
       {/* Task List */}
       <ul className="space-y-2">
