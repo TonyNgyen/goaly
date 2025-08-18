@@ -29,6 +29,7 @@ function GoalOverview() {
       try {
         const res = await fetch("http://localhost:4000/api/goals");
         const data = await res.json();
+        console.log("Fetched goals:", data);
         const goals: Record<number, Goal> = {};
         data.forEach((goal: Goal) => {
           goals[goal.id] = goal;
