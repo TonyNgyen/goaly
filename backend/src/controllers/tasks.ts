@@ -156,14 +156,14 @@ export const createTask = async (
         title,
         description,
         dueDate: dueDate ? new Date(dueDate) : undefined,
-        goals: goalId
-          ? {
-              connect: { id: Number(goalId) }, // connect to existing goal
-            }
-          : undefined,
+        GoalTask: {
+          create: {
+            goal: { connect: { id: Number(goalId) } },
+          },
+        },
       },
       include: {
-        goals: true, // return linked goals for clarity
+        GoalTask: { include: { goal: true } },
       },
     });
 

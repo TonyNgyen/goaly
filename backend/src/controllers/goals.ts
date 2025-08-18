@@ -40,13 +40,24 @@ export const createGoal = async (req: Request, res: Response) => {
 export const getAllGoals = async (req: Request, res: Response) => {
   try {
     const goals = await prisma.goal.findMany({
-      include: { tasks: { select: { completed: true } } },
+      include: {
+        GoalTask: {
+          include: { task: { select: { id: true, completed: true } } },
+        },
+      },
     });
 
-    const result = goals.map((goal) => ({
-      ...goal,
-      ...calculateProgress(goal.tasks),
-    }));
+    const result = goals.map((goal) => {
+      const tasks = goal.GoalTask.map((gt) => gt.task);
+      return {
+        id: goal.id,
+        title: goal.title,
+        description: goal.description,
+        createdAt: goal.createdAt,
+        completed: goal.completed,
+        ...calculateProgress(tasks),
+      };
+    });
 
     res.json(result);
   } catch (error) {
@@ -67,7 +78,11 @@ export const getGoalById = async (req: Request, res: Response) => {
   try {
     const goal = await prisma.goal.findUnique({
       where: { id: goalId },
-      include: { tasks: { select: { completed: true } } },
+      include: {
+        GoalTask: {
+          include: { task: { select: { id: true, completed: true } } },
+        },
+      },
     });
 
     if (!goal) {
@@ -75,9 +90,15 @@ export const getGoalById = async (req: Request, res: Response) => {
       return;
     }
 
+    const tasks = goal.GoalTask.map((gt) => gt.task);
+
     res.json({
-      ...goal,
-      ...calculateProgress(goal.tasks),
+      id: goal.id,
+      title: goal.title,
+      description: goal.description,
+      createdAt: goal.createdAt,
+      completed: goal.completed,
+      ...calculateProgress(tasks),
     });
   } catch (error) {
     console.error("Error fetching goal:", error);
@@ -99,7 +120,7 @@ export const updateGoal = async (req: Request, res: Response) => {
     const updated = await prisma.goal.update({
       where: { id: goalId },
       data: { title, description },
-      select: { id: true, title: true, description: true},
+      select: { id: true, title: true, description: true },
     });
 
     res.json(updated);
