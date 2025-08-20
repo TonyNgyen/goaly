@@ -5,6 +5,8 @@ type Goal = {
   title: string;
   description?: string;
   createdAt: string;
+  completionPercentage: number; // Assuming this is a percentage value (0-100)
+  completed: boolean; // Assuming this indicates if the goal is completed
 };
 
 function GoalOverview() {
@@ -168,19 +170,19 @@ function GoalOverview() {
       {/* Goal List */}
       <ul className="space-y-2">
         {Object.values(allGoals).map((goal) => (
-          <li
-            key={goal.id}
-            className="bg-white p-3 rounded shadow flex justify-between items-center"
-          >
-            <div className="flex flex-col">
-              <span className="font-medium">{goal.title}</span>
-              {goal.description && (
-                <span className="text-gray-500">{goal.description}</span>
-              )}
+          <li key={goal.id} className="bg-white p-3 rounded shadow ">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex flex-col">
+                <span className="font-medium">{goal.title}</span>
+                {goal.description && (
+                  <span className="text-gray-500">{goal.description}</span>
+                )}
+              </div>
+              <span className="text-xs text-gray-400">
+                Created: {new Date(goal.createdAt).toLocaleDateString()}
+              </span>
             </div>
-            <span className="text-xs text-gray-400">
-              Created: {new Date(goal.createdAt).toLocaleDateString()}
-            </span>
+            <div className="border-b-8 border-b-[#ffb703] rounded-full" style={{width: `${goal.completionPercentage}%`}}></div>
           </li>
         ))}
       </ul>
