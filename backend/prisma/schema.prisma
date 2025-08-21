@@ -8,16 +8,38 @@ datasource db {
 }
 
 model Task {
-  id          Int        @id @default(autoincrement())
-  title       String
-  description String?
-  dueDate     DateTime?
-  completed   Boolean    @default(false)
-  completedAt DateTime?
-  createdAt   DateTime   @default(now())
-  pendingAt   DateTime?
-  goals       Goal[]     @relation("GoalTasks")
-  GoalTask    GoalTask[]
+  id             Int        @id @default(autoincrement())
+  title          String
+  description    String?
+  dueDate        DateTime?
+  completed      Boolean    @default(false)
+  completedAt    DateTime?
+  createdAt      DateTime   @default(now())
+  pendingAt      DateTime?
+  
+  // Recurrence fields
+  recurrenceType RecurrenceType? // DAILY, WEEKLY, EVERY_X_DAYS, SPECIFIC_DAYS
+  interval       Int?            // For EVERY_X_DAYS (e.g., 3 = every 3 days)
+  daysOfWeek     DayOfWeek[]     // For SPECIFIC_DAYS (e.g., [MONDAY, WEDNESDAY])
+
+  goals          Goal[]     @relation("GoalTasks")
+  GoalTask       GoalTask[]
+}
+
+enum RecurrenceType {
+  DAILY
+  EVERY_X_DAYS
+  SPECIFIC_DAYS
+}
+
+enum DayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
 }
 
 model Event {
