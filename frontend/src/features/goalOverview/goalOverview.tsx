@@ -182,7 +182,12 @@ function GoalOverview() {
                 Created: {new Date(goal.createdAt).toLocaleDateString()}
               </span>
             </div>
-            <div className="border-b-8 border-b-[#ffb703] rounded-full" style={{width: `${goal.completionPercentage}%`}}></div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-[#ffb703] h-2 rounded-full"
+                style={{ width: `${goal.completionPercentage}%` }}
+              ></div>
+            </div>
           </li>
         ))}
       </ul>
