@@ -70,12 +70,10 @@ function DailyTasks() {
         throw new Error("Failed to create task");
       }
 
-      const newTask: Task = await res.json(); // ← real task from Prisma with `id`
+      const newTask: Task = await res.json();
 
-      // Merge it into state
       setAllTasks((prev) => ({ [newTask.id]: newTask, ...prev }));
 
-      // Reset form
       setForm({ title: "", description: "", dueDate: "" });
       setFormOpen(false);
     } catch (err) {
@@ -99,7 +97,6 @@ function DailyTasks() {
 
       const updatedTask: Task = await res.json();
 
-      // Update local state with the returned DB task
       setAllTasks((prev) => ({
         ...prev,
         [updatedTask.id]: updatedTask,

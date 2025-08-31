@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 type Event = {
   title: string;
-  date: string; // YYYY-MM-DD
+  date: string;
   start: Date;
   end: Date;
 };
@@ -37,7 +37,7 @@ function Calendar() {
 
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0] // YYYY-MM-DD
+    new Date().toISOString().split("T")[0]
   );
 
   const [newEvent, setNewEvent] = useState({
@@ -47,7 +47,6 @@ function Calendar() {
     end: "10:00",
   });
 
-  // Fetch events for the selected date
   useEffect(() => {
     const fetchEvents = async () => {
       const res = await fetch(

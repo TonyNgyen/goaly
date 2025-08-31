@@ -24,8 +24,6 @@ function AddTaskForm({
   });
 
   const [goals, setGoals] = useState<Goal[]>([]);
-
-  // Fetch goals for dropdown
   useEffect(() => {
     if (formOpen) {
       fetch("http://localhost:4000/api/goals")
@@ -60,7 +58,6 @@ function AddTaskForm({
       const newTask = await res.json();
       console.log("✅ Created task:", newTask);
 
-      // Reset form + close
       setForm({ title: "", description: "", dueDate: "", goalId: "" });
       setFormOpen(false);
       onTaskCreated();

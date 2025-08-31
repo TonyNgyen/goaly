@@ -18,14 +18,12 @@ function GoalOverview() {
   });
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input when form opens
   useEffect(() => {
     if (formOpen) {
       titleInputRef.current?.focus();
     }
   }, [formOpen]);
 
-  // Fetch goals from backend
   useEffect(() => {
     const fetchGoals = async () => {
       try {
@@ -67,10 +65,8 @@ function GoalOverview() {
 
       const newGoal: Goal = await res.json();
 
-      // Merge it into state
       setAllGoals((prev) => ({ [newGoal.id]: newGoal, ...prev }));
 
-      // Reset form
       setForm({ title: "", description: "" });
       setFormOpen(false);
     } catch (err) {

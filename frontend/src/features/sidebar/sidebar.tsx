@@ -6,7 +6,7 @@ function SideBar() {
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(new Date());
-    }, 1000); // update every second
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
